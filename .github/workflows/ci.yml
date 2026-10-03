@@ -1,0 +1,39 @@
+name: SQL checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  postgres-smoke-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: telemetry_lab
+          POSTGRES_USER: telemetry
+          POSTGRES_PASSWORD: telemetry_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U telemetry -d telemetry_lab"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install --yes postgresql-client
+      - name: Apply schema and seed data
+        env:
+          PGPASSWORD: telemetry_ci
+        run: |
+          psql -h localhost -U telemetry -d telemetry_lab -v ON_ERROR_STOP=1 -f sql/schema/001_initial.sql
+          psql -h localhost -U telemetry -d telemetry_lab -v ON_ERROR_STOP=1 -f sql/schema/002_indexes.sql
+          psql -h localhost -U telemetry -d telemetry_lab -v ON_ERROR_STOP=1 -f sql/seed/001_sample_data.sql
+      - name: Run smoke test
+        env:
+          PGPASSWORD: telemetry_ci
+        run: psql -h localhost -U telemetry -d telemetry_lab -v ON_ERROR_STOP=1 -f tests/smoke.sql
+
