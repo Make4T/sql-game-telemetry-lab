@@ -77,3 +77,4 @@ docker compose down
 - Expose the queries through a small FastAPI service.
 - Add Grafana dashboards for live session health.
 - Add migrations with a tool such as Flyway or Alembic.
+# sql-game-telemetry-lab
