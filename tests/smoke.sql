@@ -9,8 +9,8 @@ BEGIN
     IF (SELECT COUNT(*) FROM telemetry_events) <> 6 THEN
         RAISE EXCEPTION 'Expected 6 telemetry events';
     END IF;
-    IF (SELECT COUNT(*) FROM telemetry_events WHERE event_type = 'oxygen_changed') <> 3 THEN
-        RAISE EXCEPTION 'Expected 3 oxygen events';
+    IF (SELECT COUNT(*) FROM telemetry_events WHERE event_type = 'oxygen_changed') <> 4 THEN
+        RAISE EXCEPTION 'Expected 4 oxygen events';
     END IF;
 END;
 $$;
