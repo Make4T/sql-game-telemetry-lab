@@ -71,6 +71,29 @@ docker compose down
 
 `players` and `game_sessions` are connected through `session_players`. Each `telemetry_events` row belongs to one player and one session; `metadata` stores event-specific JSONB such as zone, item or damage source.
 
+```text
+players ─────< session_players >───── game_sessions
+   │                                      │
+   └────────────< telemetry_events >──────┘
+                         │
+                      JSONB metadata
+```
+
+The relational columns support reliable joins, integrity constraints and indexes. JSONB keeps event-specific context flexible without requiring a new table for every gameplay event type.
+
+## Included analytics
+
+| Query | Question it answers |
+| --- | --- |
+| `01_session_summary.sql` | How long did each session run and how many events occurred? |
+| `02_event_breakdown.sql` | Which event types occurred most often by session? |
+| `03_player_activity.sql` | Which players generated activity during each session? |
+| `04_oxygen_risk.sql` | Which oxygen readings indicate a potential gameplay risk? |
+
+## Quality checks
+
+GitHub Actions starts PostgreSQL 16 on every push and pull request, applies both schema files and deterministic seed data, then runs the SQL smoke test. The smoke test verifies player, session, event and oxygen-event counts before changes are accepted.
+
 ## Next improvements
 
 - Add partitioning for high-volume telemetry events.
